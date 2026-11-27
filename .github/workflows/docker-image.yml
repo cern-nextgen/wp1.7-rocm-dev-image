@@ -12,7 +12,7 @@ on:
         description: "Architecture of the AMD GPU"
         type: choice
         required: true
-        default: "gfx942"
+        default: "all"
         options:
           - all
           - gfx908
