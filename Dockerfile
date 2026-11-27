@@ -11,10 +11,7 @@ LABEL org.opencontainers.image.title="ROCm SDK (AlmaLinux 9)" \
       com.amd.rocm.install-method="packages"
 
 # Layer 1: Cached across all GPU architectures
-RUN sed -i '/^tsflags=/d' /etc/dnf/dnf.conf && \
-    echo "tsflags=nodocs" >> /etc/dnf/dnf.conf && \
-    echo "override_install_langs=en_US.UTF-8" >> /etc/dnf/dnf.conf && \
-    dnf install -y dnf-plugins-core epel-release && \
+RUN dnf install -y dnf-plugins-core epel-release && \
     dnf config-manager --set-enabled crb && \
     dnf install -y \
         ca-certificates \
@@ -37,14 +34,14 @@ ENV AMDGPU_FAMILY=${AMDGPU_FAMILY}
 LABEL com.amd.rocm.gpu-coverage="${AMDGPU_FAMILY}"
 
 # Layer 2: Rebuilds only when ROCM_VERSION or AMDGPU_FAMILY changes
-RUN tee /etc/yum.repos.d/amdrocm-stable.repo <<'EOF' && \
-[amdrocm-stable]
-name=AMD ROCm Core Stable Repository
-baseurl=https://stable.repo.amd.com/rocm/core/packages/rhel9/x86_64
-enabled=1
-gpgcheck=1
-gpgkey=https://stable.repo.amd.com/rocm/gpg/packages.gpg
-EOF
+RUN printf '%s\n' \
+        '[amdrocm-stable]' \
+        'name=AMD ROCm Core Stable Repository' \
+        'baseurl=https://stable.repo.amd.com/rocm/core/packages/rhel9/x86_64' \
+        'enabled=1' \
+        'gpgcheck=1' \
+        'gpgkey=https://stable.repo.amd.com/rocm/gpg/packages.gpg' \
+        > /etc/yum.repos.d/amdrocm-stable.repo && \
     if [ -z "${AMDGPU_FAMILY}" ] || [ "${AMDGPU_FAMILY}" = "all" ]; then \
         ROCM_PKGS="amdrocm${ROCM_VERSION} amdrocm-core-sdk${ROCM_VERSION}"; \
     else \
