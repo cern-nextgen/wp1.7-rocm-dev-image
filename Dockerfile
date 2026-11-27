@@ -7,7 +7,7 @@ ENV ROCM_PATH=/opt/rocm
 ENV PATH=${ROCM_PATH}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 LABEL org.opencontainers.image.title="ROCm SDK (AlmaLinux 9)" \
-      org.opencontainers.image.version="10.2.0" \
+      org.opencontainers.image.version="${ROCM_VERSION}" \
       com.amd.rocm.install-method="packages"
 
 # Layer 1: Cached across all GPU architectures
@@ -15,6 +15,9 @@ RUN dnf install -y dnf-plugins-core epel-release && \
     dnf config-manager --set-enabled crb && \
     dnf install -y \
         ca-certificates \
+        diffutils \
+        environment-modules \
+        git \
         gcc \
         gcc-c++ \
         make \
