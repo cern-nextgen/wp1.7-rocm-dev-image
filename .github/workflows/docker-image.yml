@@ -1,0 +1,72 @@
+name: wp1.7-rocm-dev-almalinux-9
+
+on:
+  workflow_dispatch:
+    inputs:
+      rocm-version:
+        description: "ROCm version"
+        required: true
+        default: "10.2"
+      amdgpu-family:
+        description: "Architecture of the AMD GPU (e.g., gfx942, gfx90a, all)"
+        required: true
+        default: "all"
+                options:
+                  - all
+                  - gfx908
+                  - gfx90a
+                  - gfx942
+                  - gfx950
+                  - gfx1010
+                  - gfx1011
+                  - gfx1012
+                  - gfx1030
+                  - gfx1031
+                  - gfx1032
+                  - gfx1033
+                  - gfx1034
+                  - gfx1035
+                  - gfx1036
+                  - gfx1100
+                  - gfx1101
+                  - gfx1102
+                  - gfx1103
+                  - gfx1150
+                  - gfx1151
+                  - gfx1152
+                  - gfx1153
+                  - gfx1200
+                  - gfx1201
+                  - gfx1250
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to private registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build and push the Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: Dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: true
+          build-args: |
+            ROCM_VERSION=${{ inputs.rocm-version }}
+            AMDGPU_FAMILY=${{ inputs.amdgpu-family }}
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/ngt-wp1.7/wp1.7-rocm-dev-almalinux-9:${{ inputs.rocm-version }}-${{ inputs.amdgpu-family }}
