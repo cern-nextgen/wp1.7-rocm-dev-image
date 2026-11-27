@@ -28,7 +28,8 @@ RUN dnf install -y dnf-plugins-core epel-release && \
         python3-setuptools \
         python3-wheel \
         zlib-devel \
-        expat-devel && \
+        expat-devel \
+        xz && \
     dnf clean all && \
     rm -rf /var/cache/dnf /var/lib/dnf/history* /var/log/* /root/.cache
 
